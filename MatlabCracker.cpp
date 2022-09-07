@@ -125,7 +125,7 @@ INT checkFileCrackActive(std::wstring dllFile, BOOL crack = false)
 				return 2;
 			}
 			BOOL ret = WriteFile(f1Handle, dllBuffer, bufSize, &written, 0);
-			if(!ret)
+			if (!ret)
 			{
 				free(dllBuffer);
 				CloseHandle(fHandle);
@@ -320,7 +320,7 @@ int main()
 		return -1;
 	}
 
-	
+
 	//破解
 	for (auto i = matlabs.begin(); i != matlabs.end(); i++)
 	{
@@ -349,12 +349,12 @@ int main()
 		else
 		{
 			std::cout << "[Crack]版本[";
-				std::wcout << (*i)->version << "]";
-				std::cout << "不需要被破解" << std::endl;
+			std::wcout << (*i)->version << "]";
+			std::cout << "不需要被破解" << std::endl;
 		}
-		
+
 	}
-	
+
 
 	//释放MatlabVer类
 	for (auto i = matlabs.begin(); i != matlabs.end(); i++)
