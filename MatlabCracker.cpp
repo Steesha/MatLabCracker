@@ -2,6 +2,8 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include <comutil.h>
+#pragma comment(lib, "comsuppw.lib")
 constexpr auto MAX_KEY_LENGTH = 255;
 constexpr auto MAX_VALUE_NAME = 16383;
 TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
@@ -35,7 +37,7 @@ std::vector<MatLabVer*> matlabs;
 //3: CrackErr
 INT checkFileCrackActive(std::wstring dllFile, BOOL crack = false)
 {
-	HANDLE fHandle = CreateFile(dllFile.c_str(), GENERIC_READ, NULL, NULL, OPEN_ALWAYS, NULL, NULL);
+	HANDLE fHandle = CreateFile(dllFile.c_str(), GENERIC_READ | GENERIC_WRITE, NULL, NULL, OPEN_ALWAYS, NULL, NULL);
 	if (fHandle == INVALID_HANDLE_VALUE)
 	{
 		return 2;
@@ -114,11 +116,37 @@ INT checkFileCrackActive(std::wstring dllFile, BOOL crack = false)
 			*(record + 1) = 0xC0;
 			*(record + 2) = 0xC3;
 			DWORD written = 0;
-			BOOL ret = WriteFile(fHandle, dllBuffer, bufSize, &written, 0);
-			if(ret)
+			//从位置0开始
+			HANDLE f1Handle = CreateFile((dllFile + L".bak").c_str(), GENERIC_READ | GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, NULL, NULL);
+			if (f1Handle == INVALID_HANDLE_VALUE)
 			{
+				free(dllBuffer);
+				CloseHandle(fHandle);
 				return 2;
 			}
+			BOOL ret = WriteFile(f1Handle, dllBuffer, bufSize, &written, 0);
+			if(!ret)
+			{
+				free(dllBuffer);
+				CloseHandle(fHandle);
+				CloseHandle(f1Handle);
+				return 2;
+			}
+
+
+			free(dllBuffer);
+			CloseHandle(fHandle);
+			CloseHandle(f1Handle);
+
+			_bstr_t t = dllFile.c_str();
+			char* pchar = (char*)t;
+			std::string name = pchar;
+
+			//文件改名
+			rename(name.c_str(), (name + "_").c_str());
+			rename((name + ".bak").c_str(), (name.c_str()));
+			rename((name + "_").c_str(), (name + ".bak").c_str());
+
 			return 1;
 		}
 
@@ -307,7 +335,8 @@ int main()
 			std::cin >> inputs;
 			if (inputs == "Y")
 			{
-				if (checkFileCrackActive((*i)->path, true) == 1)
+				std::wstring dllFile = (*i)->path + L"\\libmwlmgrimpl.dll";
+				if (checkFileCrackActive(dllFile, true) == 1)
 				{
 					std::cout << "本版本破解完毕,请配合License一起使用" << std::endl;
 				}
