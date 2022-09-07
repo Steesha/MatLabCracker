@@ -7,3 +7,10 @@
 
 ## 注意事项
 下载后根据里面的提示进行使用即可，本软件的作用是当你安装完后进行更新，可以将新版本进行Patch
+
+
+## Telegram 群组
+https://t.me/MatLabCracked
+
+## 作者联系方式
+https://t.me/h0matic
